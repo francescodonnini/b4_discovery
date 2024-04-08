@@ -1,5 +1,9 @@
+github.com/francescodonnini/bus v0.1.0 h1:kGUEwOl4GHnFzd+KBSt0PYFrzb8xnUwxNRfSTAIvsZk=
+github.com/francescodonnini/bus v0.1.0/go.mod h1:jB/NNAms7chACwnHHtn2913NmzBzIWlTksVA4BVivt8=
 github.com/francescodonnini/discovery_grpc v0.0.1 h1:tL5xlSXC4jxfOlv7gS5n86ao7RfQetHCGMyIgx7Q7KE=
 github.com/francescodonnini/discovery_grpc v0.0.1/go.mod h1:Le/SsFUUdRELVPh9kNx+RfD08shn1K2C1kgMxY0OWjE=
+github.com/francescodonnini/pubsub v0.0.0-20240408131425-54df4ad24340 h1:e/Hs+bMxlGoTx7Hs6YIK1eR+KPgeBjicpLvPRQ1aXFg=
+github.com/francescodonnini/pubsub v0.0.0-20240408131425-54df4ad24340/go.mod h1:B83Obo/q3uWH2V3MCkn3ASWzHfsKxJ5DCUfV/eOpnz4=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
 github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6rSs7xps=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=

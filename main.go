@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/francescodonnini/bus"
 	"github.com/francescodonnini/discovery_grpc/pb"
+	"github.com/francescodonnini/pubsub"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"io"
@@ -18,7 +18,7 @@ func main() {
 	if enabled, err := strconv.ParseBool(os.Getenv("LOGGING_ENABLED")); err != nil || enabled == false {
 		log.SetOutput(io.Discard)
 	}
-	eventBus := bus.NewEventBus()
+	eventBus := event_bus.NewEventBus()
 	lis, err := net.Listen("tcp", "0.0.0.0:5050")
 	if err != nil {
 		log.Fatalf("Failed to listen: %s\n", err)
@@ -35,7 +35,7 @@ func main() {
 	}
 }
 
-func startGrpcSrv(lis net.Listener, bus *bus.EventBus) {
+func startGrpcSrv(lis net.Listener, bus *event_bus.EventBus) {
 	server := grpc.NewServer()
 	reflection.Register(server)
 	disc := NewDiscoveryService(bus)
@@ -53,7 +53,7 @@ func startGrpcSrv(lis net.Listener, bus *bus.EventBus) {
 	}
 }
 
-func startUdpSrv(srv *Heartbeat, bus *bus.EventBus) {
+func startUdpSrv(srv *Heartbeat, bus *event_bus.EventBus) {
 	joinLis := bus.Subscribe("join")
 	go func() {
 		for e := range joinLis {
