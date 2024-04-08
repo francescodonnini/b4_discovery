@@ -14,4 +14,4 @@ RUN go build -o /b4_discovery
 
 EXPOSE 5050
 
-ENTRYPOINT ["/b4-discovery"]
+ENTRYPOINT ["/b4_discovery"]
