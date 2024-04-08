@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/francescodonnini/bus"
 	"github.com/francescodonnini/discovery_grpc/pb"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"math/rand"
@@ -13,10 +14,10 @@ type Service struct {
 	pb.UnimplementedDiscoveryServer
 	mu    *sync.RWMutex
 	nodes map[string]*Descriptor
-	bus   *EventBus
+	bus   *bus.EventBus
 }
 
-func NewDiscoveryService(bus *EventBus) *Service {
+func NewDiscoveryService(bus *bus.EventBus) *Service {
 	return &Service{
 		mu:    &sync.RWMutex{},
 		nodes: make(map[string]*Descriptor),
@@ -27,7 +28,7 @@ func NewDiscoveryService(bus *EventBus) *Service {
 func (d *Service) Remove(node Node) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	d.bus.Publish(Event{Topic: "exit", Content: node})
+	d.bus.Publish(bus.Event{Topic: "exit", Content: node})
 	delete(d.nodes, node.Address())
 }
 
@@ -40,7 +41,7 @@ func (d *Service) Join(_ context.Context, in *pb.Node) (*pb.NodeList, error) {
 	}
 	_, ok := d.nodes[node.Address()]
 	if !ok {
-		d.bus.Publish(Event{
+		d.bus.Publish(bus.Event{
 			Topic:   "join",
 			Content: node,
 		})

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"b4-discovery/pb"
 	"context"
+	"github.com/francescodonnini/bus"
+	"github.com/francescodonnini/discovery_grpc/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"io"
@@ -17,7 +18,7 @@ func main() {
 	if enabled, err := strconv.ParseBool(os.Getenv("LOGGING_ENABLED")); err != nil || enabled == false {
 		log.SetOutput(io.Discard)
 	}
-	bus := NewEventBus()
+	eventBus := bus.NewEventBus()
 	lis, err := net.Listen("tcp", "0.0.0.0:5050")
 	if err != nil {
 		log.Fatalf("Failed to listen: %s\n", err)
@@ -25,16 +26,16 @@ func main() {
 	srv := NewHeartbeatService(Node{
 		Ip:   "0.0.0.0",
 		Port: 5050,
-	}, 6, bus)
-	go startGrpcSrv(lis, bus)
-	go startUdpSrv(srv, bus)
+	}, 6, eventBus)
+	go startGrpcSrv(lis, eventBus)
+	go startUdpSrv(srv, eventBus)
 	ticker := time.NewTicker(1500 * time.Millisecond)
 	for range ticker.C {
 		srv.OnTimeout()
 	}
 }
 
-func startGrpcSrv(lis net.Listener, bus *EventBus) {
+func startGrpcSrv(lis net.Listener, bus *bus.EventBus) {
 	server := grpc.NewServer()
 	reflection.Register(server)
 	disc := NewDiscoveryService(bus)
@@ -52,7 +53,7 @@ func startGrpcSrv(lis net.Listener, bus *EventBus) {
 	}
 }
 
-func startUdpSrv(srv *Heartbeat, bus *EventBus) {
+func startUdpSrv(srv *Heartbeat, bus *bus.EventBus) {
 	joinLis := bus.Subscribe("join")
 	go func() {
 		for e := range joinLis {

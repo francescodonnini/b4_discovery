@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/gob"
 	"fmt"
+	"github.com/francescodonnini/bus"
 	"log"
 	"net"
 	"strings"
@@ -17,10 +18,10 @@ type Heartbeat struct {
 	beats          map[string]*Descriptor
 	rounds         uint64
 	maxNumOfRounds uint64
-	bus            *EventBus
+	bus            *bus.EventBus
 }
 
-func NewHeartbeatService(address Node, threshold uint64, bus *EventBus) *Heartbeat {
+func NewHeartbeatService(address Node, threshold uint64, bus *bus.EventBus) *Heartbeat {
 	return &Heartbeat{
 		addr:           address,
 		mu:             new(sync.RWMutex),
@@ -43,7 +44,7 @@ func (s *Heartbeat) OnTimeout() {
 	s.rounds += 1
 	for addr, desc := range s.beats {
 		if s.rounds-desc.LastUpdated >= s.maxNumOfRounds {
-			s.bus.Publish(Event{
+			s.bus.Publish(bus.Event{
 				Topic:   "exit",
 				Content: desc.Node,
 			})
