@@ -35,7 +35,7 @@ func NewHeartbeatService(address Node, threshold uint64, bus *event_bus.EventBus
 func (s *Heartbeat) Add(node Node) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.beats[node.Ip] = &Descriptor{node, 0, 0}
+	s.beats[node.Ip] = &Descriptor{node, s.rounds, s.rounds}
 }
 
 func (s *Heartbeat) OnTimeout() {
@@ -48,7 +48,6 @@ func (s *Heartbeat) OnTimeout() {
 				Topic:   "exit",
 				Content: desc.Node,
 			})
-			log.Printf("%s exited!\n", desc.Address())
 			delete(s.beats, addr)
 		}
 	}
@@ -76,7 +75,6 @@ func (s *Heartbeat) Serve(ctx context.Context) {
 				log.Printf("%s\n", msg)
 				continue
 			}
-			log.Printf("received heart beat from %s\n", snd.String())
 			i := strings.LastIndex(snd.String(), ":")
 			s.updateBeat(snd.String()[:i])
 		}

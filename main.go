@@ -29,7 +29,7 @@ func main() {
 	}, 6, eventBus)
 	go startGrpcSrv(lis, eventBus)
 	go startUdpSrv(srv, eventBus)
-	ticker := time.NewTicker(1500 * time.Millisecond)
+	ticker := time.NewTicker(5000 * time.Millisecond)
 	for range ticker.C {
 		srv.OnTimeout()
 	}
@@ -45,7 +45,6 @@ func startGrpcSrv(lis net.Listener, bus *event_bus.EventBus) {
 		for e := range deathLis {
 			node := e.Content.(Node)
 			disc.Remove(node)
-			log.Printf("%s exited!\n", node.Address())
 		}
 	}()
 	if err := server.Serve(lis); err != nil {

@@ -5,6 +5,7 @@ import (
 	"github.com/francescodonnini/discovery_grpc/pb"
 	event_bus "github.com/francescodonnini/pubsub"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -28,8 +29,8 @@ func NewDiscoveryService(bus *event_bus.EventBus) *Service {
 func (d *Service) Remove(node Node) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	d.bus.Publish(event_bus.Event{Topic: "exit", Content: node})
 	delete(d.nodes, node.Address())
+	log.Printf("%s exited!\n", node.Address())
 }
 
 func (d *Service) Join(_ context.Context, in *pb.Node) (*pb.NodeList, error) {
