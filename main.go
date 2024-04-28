@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/francescodonnini/discovery_grpc/pb"
-	"github.com/francescodonnini/pubsub"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"io"
@@ -23,7 +22,6 @@ func main() {
 	if err != nil {
 		panic("No port provided.")
 	}
-	eventBus := event_bus.NewEventBus()
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {
 		log.Fatalf("Failed to listen: %s\n", err)
@@ -31,40 +29,25 @@ func main() {
 	srv := NewHeartbeatService(Node{
 		Ip:   "0.0.0.0",
 		Port: int(port),
-	}, 6, eventBus)
-	go startGrpcSrv(lis, eventBus)
-	go startUdpSrv(srv, eventBus)
+	}, 6)
+	go startGrpcSrv(lis, srv)
+	go startUdpSrv(srv)
 	ticker := time.NewTicker(5000 * time.Millisecond)
 	for range ticker.C {
 		srv.OnTimeout()
 	}
 }
 
-func startGrpcSrv(lis net.Listener, bus *event_bus.EventBus) {
+func startGrpcSrv(lis net.Listener, heartbeat *Heartbeat) {
 	server := grpc.NewServer()
 	reflection.Register(server)
-	disc := NewDiscoveryService(bus)
+	disc := NewDiscoveryService(heartbeat)
 	pb.RegisterDiscoveryServer(server, disc)
-	deathLis := bus.Subscribe("exit")
-	go func() {
-		for e := range deathLis {
-			node := e.Content.(Node)
-			disc.Remove(node)
-		}
-	}()
 	if err := server.Serve(lis); err != nil {
 		log.Printf("Failed to serve: %v\n", err)
 	}
 }
 
-func startUdpSrv(srv *Heartbeat, bus *event_bus.EventBus) {
-	joinLis := bus.Subscribe("join")
-	go func() {
-		for e := range joinLis {
-			node := e.Content.(Node)
-			srv.Add(node)
-			log.Printf("%s joined!\n", node.Address())
-		}
-	}()
+func startUdpSrv(srv *Heartbeat) {
 	srv.Serve(context.Background())
 }
