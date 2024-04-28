@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/francescodonnini/discovery_grpc/pb"
 	"github.com/francescodonnini/pubsub"
 	"google.golang.org/grpc"
@@ -18,14 +19,18 @@ func main() {
 	if enabled, err := strconv.ParseBool(os.Getenv("LOGGING_ENABLED")); err != nil || enabled == false {
 		log.SetOutput(io.Discard)
 	}
+	port, err := strconv.ParseInt(os.Getenv("PORT"), 10, 16)
+	if err != nil {
+		panic("No port provided.")
+	}
 	eventBus := event_bus.NewEventBus()
-	lis, err := net.Listen("tcp", "0.0.0.0:5050")
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {
 		log.Fatalf("Failed to listen: %s\n", err)
 	}
 	srv := NewHeartbeatService(Node{
 		Ip:   "0.0.0.0",
-		Port: 5050,
+		Port: int(port),
 	}, 6, eventBus)
 	go startGrpcSrv(lis, eventBus)
 	go startUdpSrv(srv, eventBus)
