@@ -4,7 +4,6 @@ go 1.21.5
 
 require (
 	github.com/francescodonnini/discovery_grpc v0.0.1
-	github.com/francescodonnini/pubsub v0.0.1
 	google.golang.org/grpc v1.63.0
 	google.golang.org/protobuf v1.33.0
 )
